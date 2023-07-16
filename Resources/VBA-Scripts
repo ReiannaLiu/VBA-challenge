@@ -1,0 +1,116 @@
+Sub Stock():
+
+    For Each ws In Worksheets
+    
+        ' Create Column Names
+        ws.Cells(1, 9).Value = "Ticker"
+        ws.Cells(1, 10).Value = "Yearly Change"
+        ws.Cells(1, 11).Value = "Percent Change"
+        ws.Cells(1, 12).Value = "Total Stock Volume"
+        ws.Cells(1, 16).Value = "Ticker"
+        ws.Cells(1, 17).Value = "Value"
+        ws.Cells(2, 15).Value = "Greatest % Increase"
+        ws.Cells(3, 15).Value = "Greatest % Decrease"
+        ws.Cells(4, 15).Value = "Greatest Total Volume"
+        
+        ' Create Index to Record Summary
+        Dim RecordIndex As Long
+        RecordIndex = 2
+        
+        ' Create Index to Record the Last Row in Column A
+        Dim LastRowA As Long
+        LastRowA = ws.Cells(Rows.Count, 1).End(xlUp).Row
+        
+        ' Create Index to indicate the start row of the ticker
+        Dim TickerStart As Long
+        TickerStart = 2
+        
+        ' Loop through the worksheet
+        For i = 2 To LastRowA
+        
+            If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+                
+                ' Update the Ticker Column
+                ws.Cells(RecordIndex, 9).Value = ws.Cells(i, 1).Value
+                
+                ' Update the Yearly Change Column
+                ws.Cells(RecordIndex, 10).Value = ws.Cells(i, 6).Value - ws.Cells(TickerStart, 3).Value
+                
+                ' Conditional Formatting Yearly Change Column
+                If ws.Cells(RecordIndex, 10).Value < 0 Then
+                    
+                    ' Set the Background Color to Red
+                    ws.Cells(RecordIndex, 10).Interior.ColorIndex = 3
+                    
+                Else
+                
+                    ' Set the Background Color to Green
+                    ws.Cells(RecordIndex, 10).Interior.ColorIndex = 4
+                    
+                End If
+                
+                ' Update the Percent Change Column
+                If ws.Cells(RecordIndex, 10).Value <> 0 Then
+                
+                    ws.Cells(RecordIndex, 11).Value = Format(ws.Cells(RecordIndex, 10).Value / ws.Cells(TickerStart, 3).Value, "Percent")
+                
+                Else
+                
+                    ws.Cells(RecordIndex, 11).Value = Format(0, "Percent")
+                    
+                End If
+                
+                ' Update the Total Stock Volume Column
+                ws.Cells(RecordIndex, 12).Value = WorksheetFunction.Sum(Range(ws.Cells(TickerStart, 7), ws.Cells(i, 7)))
+                
+                ' Update the Index
+                RecordIndex = RecordIndex + 1
+                TickerStart = i + 1
+                
+            End If
+        
+        Next i
+        
+        ' Create Index to store the row index of the Greatest % Increase
+        Dim GreatestIncrease As Long
+        
+        ' Create Index to Store the Last Row in Percent Change Column
+        Dim LastRowK As Long
+        LastRowK = ws.Cells(Rows.Count, 11).End(xlUp).Row
+    
+        ' Find the Row Index of the Greatest % Increase
+        GreatestIncrease = WorksheetFunction.Match(WorksheetFunction.Max(Range(ws.Cells(2, 11), ws.Cells(LastRowK, 11))), ws.Range(ws.Cells(2, 11), ws.Cells(LastRowK, 11)), 0) + 1
+        
+        ' Record the Ticker with the Greatest % Increase
+        ws.Cells(2, 16).Value = ws.Cells(GreatestIncrease, 9).Value
+        
+        ' Record the Greatest % Increase
+        ws.Cells(2, 17).Value = Format(ws.Cells(GreatestIncrease, 11).Value, "Percent")
+        
+        ' Create Index to store the row index of the Greatest % Decrease
+        Dim GreatestDecrease As Long
+        
+        ' Find the Row Index of the Greatest % Decrease
+        GreatestDecrease = WorksheetFunction.Match(WorksheetFunction.Min(Range(ws.Cells(2, 11), ws.Cells(LastRowK, 11))), ws.Range(ws.Cells(2, 11), ws.Cells(LastRowK, 11)), 0) + 1
+        
+         ' Record the Ticker with the Greatest % Decrease
+        ws.Cells(3, 16).Value = ws.Cells(GreatestDecrease, 9).Value
+        
+        ' Record the Greatest % Decrease
+        ws.Cells(3, 17).Value = Format(ws.Cells(GreatestDecrease, 11).Value, "Percent")
+        
+        ' Create Index to store the row index of the Greatest Total Volume
+        Dim GreatestTotalVolume As Long
+        
+        ' Find the Row Index of the Greatest % Decrease
+        GreatestTotalVolume = WorksheetFunction.Match(WorksheetFunction.Max(Range(ws.Cells(2, 12), ws.Cells(LastRowK, 12))), ws.Range(ws.Cells(2, 12), ws.Cells(LastRowK, 12)), 0) + 1
+        
+         ' Record the Ticker with the Greatest % Decrease
+        ws.Cells(4, 16).Value = ws.Cells(GreatestTotalVolume, 9).Value
+        
+        ' Record the Greatest % Increase
+        ws.Cells(4, 17).Value = Format(ws.Cells(GreatestTotalVolume, 12).Value, "Scientific")
+        
+    Next ws
+
+End Sub
